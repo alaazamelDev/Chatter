@@ -1,8 +1,6 @@
 import 'package:chatter/models/message_data.dart';
 import 'package:chatter/theme.dart';
-import 'package:chatter/widgets/avatar.dart';
-import 'package:chatter/widgets/icon_border.dart';
-import 'package:chatter/widgets/icon_buttons.dart';
+import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +56,14 @@ class ChatScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const _DemoMessageList(),
+      body: Column(
+        children: const [
+          Expanded(
+            child: _DemoMessageList(),
+          ),
+          _ActionBar(),
+        ],
+      ),
     );
   }
 }
@@ -246,7 +251,7 @@ class _MessageOwnTile extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(_borderRadius),
-                  topRight: Radius.circular(_borderRadius),
+                  bottomRight: Radius.circular(_borderRadius),
                   bottomLeft: Radius.circular(_borderRadius),
                 ),
                 color: AppColors.secondary,
@@ -267,8 +272,76 @@ class _MessageOwnTile extends StatelessWidget {
                   fontSize: 10,
                 ),
               ),
-            )
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionBar extends StatelessWidget {
+  const _ActionBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      bottom: true,
+      top: false,
+      child: Card(
+        margin: const EdgeInsets.all(0),
+        shape: const RoundedRectangleBorder(),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Camera icon
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                      width: 2,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                  ),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Icon(
+                    CupertinoIcons.camera_fill,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 100),
+                    child: const TextField(
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      style: TextStyle(fontSize: 14, height: 1.5),
+                      decoration: InputDecoration(
+                        hintText: 'Type something...',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 20.0),
+                child: GlowingActionButton(
+                  size: 50,
+                  icon: Icons.send_rounded,
+                  color: AppColors.accent,
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
