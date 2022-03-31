@@ -12,6 +12,8 @@ abstract class AppColors {
   static const textHighlight = secondary;
   static const cardLight = Color(0xFFF9FAFE);
   static const cardDark = Color(0xFF303334);
+  static const progressIndicatorDark = Color(0xFFF9FAFE);
+  static const progressIndicatorLight = Color(0xFF303334);
 }
 
 abstract class _LightColors {
@@ -36,6 +38,9 @@ abstract class AppTheme {
         textTheme:
             GoogleFonts.mulishTextTheme().apply(bodyColor: AppColors.textDark),
         backgroundColor: _LightColors.background,
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: AppColors.progressIndicatorLight,
+        ),
         scaffoldBackgroundColor: _LightColors.background,
         cardColor: _LightColors.card,
         appBarTheme: const AppBarTheme(foregroundColor: AppColors.textDark),
@@ -53,6 +58,9 @@ abstract class AppTheme {
         textTheme:
             GoogleFonts.interTextTheme().apply(bodyColor: AppColors.textLigth),
         backgroundColor: _DarkColors.background,
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: AppColors.progressIndicatorDark,
+        ),
         scaffoldBackgroundColor: _DarkColors.background,
         cardColor: _DarkColors.card,
         appBarTheme: const AppBarTheme(foregroundColor: AppColors.textLigth),

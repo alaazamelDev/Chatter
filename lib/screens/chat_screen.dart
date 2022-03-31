@@ -1,5 +1,5 @@
+import 'package:chatter/configs/theme.dart';
 import 'package:chatter/models/message_data.dart';
-import 'package:chatter/theme.dart';
 import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -259,7 +259,12 @@ class _MessageOwnTile extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-                child: Text(message),
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: AppColors.textLigth,
+                  ),
+                ),
               ),
             ),
             Padding(
@@ -293,7 +298,7 @@ class _ActionBar extends StatelessWidget {
         shape: const RoundedRectangleBorder(),
         elevation: 0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -314,6 +319,7 @@ class _ActionBar extends StatelessWidget {
                   ),
                 ),
               ),
+              // Textfield for message typing
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0),
@@ -331,10 +337,12 @@ class _ActionBar extends StatelessWidget {
                   ),
                 ),
               ),
+              // Send message button
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 20.0),
                 child: GlowingActionButton(
                   size: 50,
+                  spreadRadius: 2,
                   icon: Icons.send_rounded,
                   color: AppColors.accent,
                   onPressed: () {},

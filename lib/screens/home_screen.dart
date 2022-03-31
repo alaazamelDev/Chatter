@@ -1,9 +1,10 @@
-import 'package:chatter/helpers.dart';
+import 'package:chatter/configs/helpers.dart';
+import 'package:chatter/configs/theme.dart';
 import 'package:chatter/pages/calls_page.dart';
 import 'package:chatter/pages/contacts_page.dart';
 import 'package:chatter/pages/messages_page.dart';
 import 'package:chatter/pages/notifications_page.dart';
-import 'package:chatter/theme.dart';
+import 'package:chatter/screens/select_user_screen.dart';
 import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +104,11 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
     widget.onItemPressed(index);
   }
 
+  void _selectUserPressed() {
+    // Go to select a new user to chat with
+    Navigator.push(context, SelectUserScreen.route());
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -138,9 +144,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
                 child: GlowingActionButton(
                   icon: CupertinoIcons.add,
                   color: AppColors.secondary,
-                  onPressed: () {
-                    print('pressed');
-                  },
+                  onPressed: _selectUserPressed,
                 ),
               ),
               _NavigationBarItem(

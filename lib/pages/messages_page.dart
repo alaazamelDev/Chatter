@@ -1,7 +1,7 @@
-import 'package:chatter/helpers.dart';
+import 'package:chatter/configs/helpers.dart';
 import 'package:chatter/models/models.dart';
 import 'package:chatter/screens/chat_screen.dart';
-import 'package:chatter/theme.dart';
+import 'package:chatter/configs/theme.dart';
 import 'package:chatter/widgets/avatar.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';

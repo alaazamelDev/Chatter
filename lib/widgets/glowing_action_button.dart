@@ -1,4 +1,4 @@
-import 'package:chatter/theme.dart';
+import 'package:chatter/configs/theme.dart';
 import 'package:flutter/material.dart';
 
 class GlowingActionButton extends StatelessWidget {
@@ -6,13 +6,15 @@ class GlowingActionButton extends StatelessWidget {
     Key? key,
     required this.icon,
     required this.onPressed,
-    this.size = 54,
     required this.color,
+    this.size = 54,
+    this.spreadRadius = 10,
   }) : super(key: key);
   final IconData icon;
   final VoidCallback onPressed;
   final double size;
   final Color color;
+  final double spreadRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class GlowingActionButton extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.3),
-            spreadRadius: 10,
+            spreadRadius: spreadRadius,
             blurRadius: 24,
           ),
         ],
