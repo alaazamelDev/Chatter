@@ -1,7 +1,7 @@
 import 'package:chatter/configs/app.dart';
 import 'package:chatter/models/demo_users.dart';
+import 'package:chatter/screens/home_screen.dart';
 import 'package:chatter/widgets/widgets.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
@@ -27,12 +27,22 @@ class SelectUserScreen extends StatelessWidget {
       // move on to create a new chat
       final client = StreamChatCore.of(context).client;
       client.connectUser(
-        User(id: user.id),
+        User(
+          id: user.id,
+          extraData: {
+            'name': user.name,
+            'image': user.image,
+          },
+        ),
         client.devToken(user.id).rawValue,
       );
 
-      // return selected user instance back
-      Navigator.pop(context);
+      // sign in as user selected
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ));
     } on Exception catch (e, st) {
       _isLoading.value = false;
       logger.e('Could not connect a user', e, st);
@@ -70,16 +80,17 @@ class SelectUserScreen extends StatelessWidget {
           ),
         ),
         leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(
-            icon: CupertinoIcons.back,
-            onTap: () {
-              // Implement search functionality
-              Navigator.pop(context);
-            },
-          ),
-        ),
+        leading: const SizedBox(),
+        // Align(
+        //   alignment: Alignment.centerRight,
+        //   child: IconBackground(
+        //     icon: CupertinoIcons.back,
+        //     onTap: () {
+        //       // Implement search functionality
+        //       Navigator.pop(context);
+        //     },
+        //   ),
+        // ),
         actions: [
           Theme(
             data: Theme.of(context).copyWith(

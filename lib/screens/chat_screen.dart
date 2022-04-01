@@ -30,15 +30,9 @@ class ChatScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(
-            icon: CupertinoIcons.back,
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
+        leading: AppBarBackButton(onTap: () {
+          Navigator.pop(context);
+        }),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -67,6 +61,7 @@ class ChatScreen extends StatelessWidget {
     );
   }
 }
+
 
 class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle({

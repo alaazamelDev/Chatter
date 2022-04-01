@@ -1,6 +1,6 @@
 import 'package:chatter/configs/app.dart';
-import 'package:chatter/screens/home_screen.dart';
 import 'package:chatter/configs/theme.dart';
+import 'package:chatter/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
@@ -30,10 +30,11 @@ class MyApp extends StatelessWidget {
         // Inject stream chat data provider
         return StreamChatCore(
           client: client,
-          child: child!,
+          // Provide an injection of Channel Bloc
+          child: ChannelsBloc(child: child!),
         );
       },
-      home: HomeScreen(),
+      home: SelectUserScreen(),
     );
   }
 }

@@ -1,10 +1,10 @@
-import 'package:chatter/configs/helpers.dart';
+import 'package:chatter/configs/app.dart';
 import 'package:chatter/configs/theme.dart';
 import 'package:chatter/pages/calls_page.dart';
 import 'package:chatter/pages/contacts_page.dart';
 import 'package:chatter/pages/messages_page.dart';
 import 'package:chatter/pages/notifications_page.dart';
-import 'package:chatter/screens/select_user_screen.dart';
+import 'package:chatter/screens/screens.dart';
 import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +68,14 @@ class HomeScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 24.0),
-            child: Avatar.small(url: Helpers.randomPictureUrl()),
+            child: Hero(
+              tag: 'profile-picture-hero',
+              child: Avatar.small(
+                  url: context.currentUserImage,
+                  onTap: () {
+                    Navigator.push(context, ProfileScreen.route());
+                  }),
+            ),
           ),
         ],
       ),
@@ -106,7 +113,9 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
 
   void _selectUserPressed() {
     // Go to select a new user to chat with
-    Navigator.push(context, SelectUserScreen.route());
+    // Navigator.push(context, SelectUserScreen.route());
+
+    // Create a new message
   }
 
   @override
