@@ -3,6 +3,8 @@ import 'package:chatter/models/message_data.dart';
 import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
+import 'package:chatter/configs/app.dart';
 
 class ChatScreen extends StatelessWidget {
   static Route route(MessageData data) => MaterialPageRoute(
@@ -51,17 +53,30 @@ class ChatScreen extends StatelessWidget {
         ],
       ),
       body: Column(
-        children: const [
+        children: [
           Expanded(
-            child: _DemoMessageList(),
+            child: MessageListCore(
+              loadingBuilder: (context) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+              emptyBuilder: (context) => const SizedBox.shrink(),
+              errorBuilder: (context, error) =>
+                  DisplayErrorMessage(error: error),
+              messageListBuilder:
+                  (BuildContext context, List<Message> messages) {
+                // Build the ListView which contains actual messages
+                return _DemoMessageList(messages: messages);
+              },
+            ),
           ),
-          _ActionBar(),
+          const _ActionBar(),
         ],
       ),
     );
   }
 }
-
 
 class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle({
@@ -104,31 +119,51 @@ class _AppBarTitle extends StatelessWidget {
 }
 
 class _DemoMessageList extends StatelessWidget {
-  const _DemoMessageList({Key? key}) : super(key: key);
+  const _DemoMessageList({
+    Key? key,
+    required this.messages,
+  }) : super(key: key);
+  final List<Message> messages;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      children: const [
-        _DateLable(lable: 'Yesterday'),
-        _MessageTile(
-          message: 'Hello Alaa, How\'re you doing Today?',
-          messageDate: '12:48 PM',
-        ),
-        _MessageOwnTile(
-          message: 'Great, How about you?',
-          messageDate: '12:49 PM',
-        ),
-        _MessageTile(
-          message: 'Same, Thanks for asking',
-          messageDate: '12:49 PM',
-        ),
-        _MessageOwnTile(
-          message: 'How does your university is going? Well?',
-          messageDate: '12:50 PM',
-        ),
-      ],
+      children: messages.map<Widget>((message) {
+        final currentUserId = context.currentUser!.id;
+
+        // To handle the right ListTile layout selection
+        final isSentByMe = message.user?.id == currentUserId;
+
+        return isSentByMe
+            ? _MessageOwnTile(
+                message: message.text!,
+                messageDate: message.createdAt.toLocal().toString(),
+              )
+            : _MessageTile(
+                message: message.text!,
+                messageDate: message.createdAt.toLocal().toString(),
+              );
+      }).toList(),
+      // const [
+      //   _DateLable(lable: 'Yesterday'),
+      //   _MessageTile(
+      //     message: 'Hello Alaa, How\'re you doing Today?',
+      //     messageDate: '12:48 PM',
+      //   ),
+      //   _MessageOwnTile(
+      //     message: 'Great, How about you?',
+      //     messageDate: '12:49 PM',
+      //   ),
+      //   _MessageTile(
+      //     message: 'Same, Thanks for asking',
+      //     messageDate: '12:49 PM',
+      //   ),
+      //   _MessageOwnTile(
+      //     message: 'How does your university is going? Well?',
+      //     messageDate: '12:50 PM',
+      //   ),
+      // ],
     );
   }
 }
