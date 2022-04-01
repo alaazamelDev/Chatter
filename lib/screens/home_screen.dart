@@ -112,10 +112,20 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
   }
 
   void _selectUserPressed() {
-    // Go to select a new user to chat with
-    // Navigator.push(context, SelectUserScreen.route());
+    // Show a simple dialog contains list of users
+    // to start a new message with one of them
 
-    // Create a new message
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Dialog(
+          child: AspectRatio(
+            aspectRatio: 8 / 7,
+            child: ContactsPage(),
+          ),
+        );
+      },
+    );
   }
 
   @override

@@ -31,7 +31,11 @@ class MyApp extends StatelessWidget {
         return StreamChatCore(
           client: client,
           // Provide an injection of Channel Bloc
-          child: ChannelsBloc(child: child!),
+          child: ChannelsBloc(
+            child: UsersBloc(
+              child: child!,
+            ),
+          ),
         );
       },
       home: SelectUserScreen(),

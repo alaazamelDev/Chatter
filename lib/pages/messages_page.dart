@@ -2,6 +2,7 @@ import 'package:chatter/configs/app.dart';
 import 'package:chatter/configs/helpers.dart';
 import 'package:chatter/configs/theme.dart';
 import 'package:chatter/models/models.dart';
+import 'package:chatter/screens/chat_screen.dart';
 import 'package:chatter/widgets/avatar.dart';
 import 'package:chatter/widgets/display_error_message.dart';
 import 'package:faker/faker.dart';
@@ -77,7 +78,7 @@ class _MessageTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         // Go to chat screen
-        // Navigator.push(context, ChatScreen.route(channel));
+        Navigator.push(context, ChatScreen.routeWithChannel(channel));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
