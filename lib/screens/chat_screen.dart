@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:chatter/configs/app.dart';
 import 'package:chatter/configs/helpers.dart';
 import 'package:chatter/configs/theme.dart';
 import 'package:chatter/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   static Route routeWithChannel(Channel channel) => MaterialPageRoute(
         builder: (context) => StreamChannel(
           channel: channel,
@@ -18,6 +20,35 @@ class ChatScreen extends StatelessWidget {
   const ChatScreen({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  late StreamSubscription<int> unreadCountSubscription;
+  @override
+  void initState() {
+    unreadCountSubscription = StreamChannel.of(context)
+        .channel
+        .state!
+        .unreadCountStream
+        .listen(_unreadCountHandler);
+    super.initState();
+  }
+
+  Future<void> _unreadCountHandler(int count) async {
+    if (count > 0) {
+      // mark all channel messages as read
+      await StreamChannel.of(context).channel.markRead();
+    }
+  }
+
+  @override
+  void dispose() {
+    unreadCountSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +95,7 @@ class ChatScreen extends StatelessWidget {
               messageListBuilder:
                   (BuildContext context, List<Message> messages) {
                 // Build the ListView which contains actual messages
-                return _DemoMessageList(messages: messages);
+                return _MessageList(messages: messages);
               },
             ),
           ),
@@ -178,7 +209,7 @@ class _AppBarTitle extends StatelessWidget {
         } else {
           // calculate distance of time since last online
           alternativeWidget = Text(
-            'Last seen:'
+            'Last seen: '
             '${Jiffy(otherMember.user?.lastActive).fromNow()}',
             style: const TextStyle(
               fontSize: 10,
@@ -227,6 +258,7 @@ class TypingIndicator extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
+                        color: Colors.red,
                       ),
                     ),
                   )
@@ -242,8 +274,8 @@ class TypingIndicator extends StatelessWidget {
   }
 }
 
-class _DemoMessageList extends StatelessWidget {
-  const _DemoMessageList({
+class _MessageList extends StatelessWidget {
+  const _MessageList({
     Key? key,
     required this.messages,
   }) : super(key: key);
@@ -251,53 +283,100 @@ class _DemoMessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      children: messages.map<Widget>((message) {
-        final currentUserId = context.currentUser!.id;
-
-        // To handle the right ListTile layout selection
-        final isSentByMe = message.user?.id == currentUserId;
-
-        return isSentByMe
-            ? _MessageOwnTile(
-                message: message.text!,
-                messageDate: message.createdAt.toLocal().toString(),
-              )
-            : _MessageTile(
-                message: message.text!,
-                messageDate: message.createdAt.toLocal().toString(),
-              );
-      }).toList(),
-      // const [
-      //   _DateLable(lable: 'Yesterday'),
-      //   _MessageTile(
-      //     message: 'Hello Alaa, How\'re you doing Today?',
-      //     messageDate: '12:48 PM',
-      //   ),
-      //   _MessageOwnTile(
-      //     message: 'Great, How about you?',
-      //     messageDate: '12:49 PM',
-      //   ),
-      //   _MessageTile(
-      //     message: 'Same, Thanks for asking',
-      //     messageDate: '12:49 PM',
-      //   ),
-      //   _MessageOwnTile(
-      //     message: 'How does your university is going? Well?',
-      //     messageDate: '12:50 PM',
-      //   ),
-      // ],
+    return ListView.separated(
+      padding: const EdgeInsets.all(8.0),
+      itemCount: messages.length + 1,
+      reverse: true,
+      separatorBuilder: (BuildContext context, int index) {
+        if (index == messages.length - 1) {
+          return _DateLable(dateTime: messages[index].createdAt);
+        }
+        if (messages.length == 1) {
+          return const SizedBox.shrink();
+        } else if (index >= messages.length - 1) {
+          return const SizedBox.shrink();
+        } else if (index <= messages.length) {
+          final message = messages[index];
+          final nextMessage = messages[index + 1];
+          if (!Jiffy(message.createdAt.toLocal())
+              .isSame(nextMessage.createdAt.toLocal(), Units.DAY)) {
+            return _DateLable(
+              dateTime: message.createdAt,
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+      itemBuilder: (BuildContext context, int index) {
+        if (index < messages.length) {
+          final message = messages[index];
+          if (message.user?.id == context.currentUser?.id) {
+            return _MessageOwnTile(message: message);
+          } else {
+            return _MessageTile(message: message);
+          }
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 }
 
-class _DateLable extends StatelessWidget {
+class _DateLable extends StatefulWidget {
   const _DateLable({
     Key? key,
-    required this.lable,
+    required this.dateTime,
   }) : super(key: key);
-  final String lable;
+  final DateTime dateTime;
+
+  @override
+  State<_DateLable> createState() => _DateLableState();
+}
+
+class _DateLableState extends State<_DateLable> {
+  late String dayInfo;
+
+  @override
+  void initState() {
+    final createdAt = Jiffy(widget.dateTime);
+    final now = DateTime.now();
+
+    // No Days Difference
+    if (Jiffy(createdAt).isSame(now, Units.DAY)) {
+      dayInfo = 'TODAY';
+
+      // One day difference
+    } else if (Jiffy(createdAt).isSame(
+      now.subtract(const Duration(days: 1)),
+      Units.DAY,
+    )) {
+      dayInfo = 'YESTERDAY';
+
+      // 1 week or more since created
+    } else if (Jiffy(createdAt).isAfter(
+      now.subtract(const Duration(days: 7)),
+      Units.DAY,
+    )) {
+      dayInfo = createdAt.EEEE;
+
+      // one year or more since created
+    } else if (Jiffy(createdAt).isAfter(
+      Jiffy(now).subtract(years: 1),
+      Units.DAY,
+    )) {
+      dayInfo = createdAt.MMMd;
+    } else {
+      // otherwise
+      dayInfo = createdAt.MMMd;
+    }
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -312,7 +391,7 @@ class _DateLable extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
             child: Text(
-              lable,
+              dayInfo,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -330,10 +409,8 @@ class _MessageTile extends StatelessWidget {
   const _MessageTile({
     Key? key,
     required this.message,
-    required this.messageDate,
   }) : super(key: key);
-  final String message;
-  final String messageDate;
+  final Message message;
 
   // for design perspictive
   final _borderRadius = 26.0;
@@ -359,13 +436,14 @@ class _MessageTile extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-                child: Text(message),
+                child: Text(message.text ?? ''),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: Text(
-                messageDate,
+                //
+                Jiffy(message.createdAt.toLocal()).jm,
                 style: const TextStyle(
                   color: AppColors.textFaded,
                   fontWeight: FontWeight.bold,
@@ -384,10 +462,8 @@ class _MessageOwnTile extends StatelessWidget {
   const _MessageOwnTile({
     Key? key,
     required this.message,
-    required this.messageDate,
   }) : super(key: key);
-  final String message;
-  final String messageDate;
+  final Message message;
 
   // for design perspictive
   final _borderRadius = 26.0;
@@ -414,7 +490,7 @@ class _MessageOwnTile extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
                 child: Text(
-                  message,
+                  message.text!,
                   style: const TextStyle(
                     color: AppColors.textLigth,
                   ),
@@ -424,7 +500,7 @@ class _MessageOwnTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: Text(
-                messageDate,
+                Jiffy(message.createdAt.toLocal()).jm,
                 style: const TextStyle(
                   color: AppColors.textFaded,
                   fontWeight: FontWeight.bold,
@@ -439,8 +515,34 @@ class _MessageOwnTile extends StatelessWidget {
   }
 }
 
-class _ActionBar extends StatelessWidget {
+class _ActionBar extends StatefulWidget {
   const _ActionBar({Key? key}) : super(key: key);
+
+  @override
+  State<_ActionBar> createState() => _ActionBarState();
+}
+
+class _ActionBarState extends State<_ActionBar> {
+  final TextEditingController _controller = TextEditingController();
+
+  Future<void> _sendMessage() async {
+    if (_controller.text.isNotEmpty) {
+      await StreamChannel.of(context)
+          .channel
+          .sendMessage(Message(text: _controller.text));
+    }
+
+    // Clear the controller
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    // dispose controller to free memory space
+    _controller.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -479,14 +581,20 @@ class _ActionBar extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 16.0),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 100),
-                    child: const TextField(
+                    child: TextField(
+                      controller: _controller,
+                      onChanged: (val) {
+                        // set typing flag
+                        StreamChannel.of(context).channel.keyStroke();
+                      },
                       maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      style: TextStyle(fontSize: 14, height: 1.5),
-                      decoration: InputDecoration(
+                      style: const TextStyle(fontSize: 14, height: 1.5),
+                      decoration: const InputDecoration(
                         hintText: 'Type something...',
                         border: InputBorder.none,
                       ),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                 ),
@@ -499,7 +607,7 @@ class _ActionBar extends StatelessWidget {
                   spreadRadius: 2,
                   icon: Icons.send_rounded,
                   color: AppColors.accent,
-                  onPressed: () {},
+                  onPressed: _sendMessage,
                 ),
               ),
             ],

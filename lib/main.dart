@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
       title: 'Chatter',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.dark,
       builder: (context, child) {
         // Inject stream chat data provider
         return StreamChatCore(

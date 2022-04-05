@@ -3,8 +3,7 @@ import 'package:chatter/configs/helpers.dart';
 import 'package:chatter/configs/theme.dart';
 import 'package:chatter/models/models.dart';
 import 'package:chatter/screens/chat_screen.dart';
-import 'package:chatter/widgets/avatar.dart';
-import 'package:chatter/widgets/display_error_message.dart';
+import 'package:chatter/widgets/widgets.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
@@ -134,22 +133,21 @@ class _MessageTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     _buildLastMessageAt(),
                     const SizedBox(height: 8),
-                    Container(
-                      width: 18,
-                      height: 18,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.secondary,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '1',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.textLigth,
-                          ),
-                        ),
-                      ),
+                    // Container(
+                    //   width: 18,
+                    //   height: 18,
+                    //   decoration: const BoxDecoration(
+                    //     shape: BoxShape.circle,
+                    //     color: AppColors.secondary,
+                    //   ),
+                    //   child: Center(
+                    //     child: UnreadIndicator(
+                    //       channel: channel,
+                    //     ),
+                    //   ),
+                    // ),
+                    UnreadIndicator(
+                      channel: channel,
                     ),
                   ],
                 ),
@@ -162,17 +160,28 @@ class _MessageTile extends StatelessWidget {
   }
 
   Widget _buildLastMessage() {
-    return BetterStreamBuilder<Message>(
-      stream: channel.state!.lastMessageStream,
-      initialData: channel.state!.lastMessage,
-      builder: (BuildContext context, Message lastMessage) {
-        return Text(
-          lastMessage.text ?? '',
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.textFaded,
-            fontSize: 12,
-          ),
+    return BetterStreamBuilder<int>(
+      stream: channel.state!.unreadCountStream,
+      initialData: channel.state!.unreadCount,
+      builder: (BuildContext context, int count) {
+        return BetterStreamBuilder<Message>(
+          stream: channel.state!.lastMessageStream,
+          initialData: channel.state!.lastMessage,
+          builder: (BuildContext context, Message lastMessage) {
+            return Text(
+              lastMessage.text ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: count > 0
+                  ? const TextStyle(
+                      color: AppColors.secondary,
+                      fontSize: 12,
+                    )
+                  : const TextStyle(
+                      color: AppColors.textFaded,
+                      fontSize: 12,
+                    ),
+            );
+          },
         );
       },
     );
